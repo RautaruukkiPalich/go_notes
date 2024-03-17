@@ -1,24 +1,74 @@
 package store
 
-type NoteRepo interface {
-	NoteCreater
-	NoteGetter
-	NoteSetter
-	NoteDeletter
-}
+import (
+	"time"
 
-type NoteGetter interface {
-	Get()
-}
+	"github.com/rautaruukkipalich/go_notes/internal/model"
+)
 
-type NoteCreater interface {
-	Create()
-}
+type (
+	NoteRepo interface {
+		NoteRepoGetter
+		NoteRepoSetter
+		NoteRepoDeletter
+	}
 
-type NoteSetter interface {
-	Set()
-}
+	NoteCache interface {
+		NoteCacheGetter
+		NoteCacheSetter
+		NoteCacheDeletter
+	}
 
-type NoteDeletter interface {
-	Delete()
-}
+	UserCache interface {
+		UserCacheGetter
+		UserCacheSetter
+		UserCacheDeletter
+	}
+)
+
+type (
+	NoteRepoGetter interface {
+		GetNoteById(int) (*model.Note, error)
+		GetNotes() ([]*model.Note, error)
+	}
+
+	NoteRepoCreater interface {
+		Create()
+	}
+
+	NoteRepoSetter interface {
+		Set()
+	}
+
+	NoteRepoDeletter interface {
+		Delete()
+	}
+)
+
+type (
+	NoteCacheGetter interface {
+		Get()
+	}
+
+	NoteCacheSetter interface {
+		Set()
+	}
+
+	NoteCacheDeletter interface {
+		Delete()
+	}
+)
+
+type (
+	UserCacheGetter interface {
+		Get(string) ([]byte, error)
+	}
+
+	UserCacheSetter interface {
+		Set(string, []byte, time.Time) error
+	}
+
+	UserCacheDeletter interface {
+		Delete(string) error
+	}
+)

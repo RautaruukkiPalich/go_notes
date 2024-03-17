@@ -1,8 +1,8 @@
-package rediscache
+package cachestore
 
 import (
+	"github.com/rautaruukkipalich/go_notes/internal/store"
 	"github.com/redis/go-redis/v9"
-	"github.com/rautaruukkipalich/go_notes/internal/cachestore"
 )
 
 type (
@@ -19,10 +19,10 @@ func New(client *redis.Client) (*Redis, error) {
 	}, nil
 }
 
-func (r *Redis) Note() cachestore.NoteCache {
+func (r *Redis) Note() store.NoteCache {
 	return r.note
 }
 
-func (r *Redis) User() cachestore.UserCache {
+func (r *Redis) User() store.UserCache {
 	return r.user
 }

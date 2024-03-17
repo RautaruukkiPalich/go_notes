@@ -1,4 +1,4 @@
-package rediscache
+package cachestore
 
 import "github.com/redis/go-redis/v9"
 

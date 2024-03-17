@@ -1,4 +1,4 @@
-package mockcache
+package mockcachestore
 
 type NoteCache struct{
 	client map[string]any

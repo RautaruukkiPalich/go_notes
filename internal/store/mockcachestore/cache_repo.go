@@ -1,7 +1,7 @@
-package mockcache
+package mockcachestore
 
 import (
-	"github.com/rautaruukkipalich/go_notes/internal/cachestore"
+	"github.com/rautaruukkipalich/go_notes/internal/store"
 )
 
 type (
@@ -18,10 +18,10 @@ func New() (*Cache, error) {
 	}, nil
 }
 
-func (c *Cache) Note() cachestore.NoteCache {
+func (c *Cache) Note() store.NoteCache {
 	return c.note
 }
 
-func (c *Cache) User() cachestore.UserCache {
+func (c *Cache) User() store.UserCache {
 	return c.user
 }
