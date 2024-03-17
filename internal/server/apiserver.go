@@ -1,20 +1,21 @@
 package server
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-	"github.com/rautaruukkipalich/go_notes/internal/cachestore/rediscache"
+	"github.com/rautaruukkipalich/go_notes/internal/store/cachestore"
 	"github.com/rautaruukkipalich/go_notes/internal/store/sqlstore"
+	"github.com/redis/go-redis/v9"
 )
 
 const (
 	bindAddr = "localhost:8088"
 	dbUri = "postgres://postgres:postgres@localhost:5432/go_notes?sslmode=disable"
-	cacheUri = "redis://user:password@localhost:6379/0?protocol=3"
+	cacheUri = "redis://localhost:6379"
 )
 
 func Start() error {
@@ -29,13 +30,13 @@ func Start() error {
 		return err
 	}
 
-	cacheDB, err := newCache(cacheUri)
+	redisDB, err := newRedis(cacheUri)
 	if err != nil {
 		return err
 	}
-	defer cacheDB.Close()
+	defer redisDB.Close()
 
-	cache, err := rediscache.New(cacheDB)
+	cache, err := cachestore.New(redisDB)
 	if err != nil {
 		return err
 	}
@@ -74,11 +75,16 @@ func newDB(databaseURI string) (*sql.DB, error) {
 	return db, nil
 }
 
-func newCache(redisUri string) (*redis.Client, error) {
+func newRedis(redisUri string) (*redis.Client, error) {
     opts, err := redis.ParseURL(redisUri)
     if err != nil {
         return nil, err
     }
+	cache := redis.NewClient(opts)
+	ctx := context.Background()
+	if err := cache.Ping(ctx).Err(); err != nil {
+		return nil, err
+	}
 
-    return redis.NewClient(opts), nil
+    return cache, nil
 }
