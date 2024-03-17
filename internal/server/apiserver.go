@@ -6,27 +6,42 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/redis/go-redis/v9"
+	"github.com/rautaruukkipalich/go_notes/internal/cachestore/rediscache"
 	"github.com/rautaruukkipalich/go_notes/internal/store/sqlstore"
 )
 
 const (
 	bindAddr = "localhost:8088"
 	dbUri = "postgres://postgres:postgres@localhost:5432/go_notes?sslmode=disable"
+	cacheUri = "redis://user:password@localhost:6379/0?protocol=3"
 )
 
 func Start() error {
 	db, err := newDB(dbUri)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer db.Close()
 
 	store, err := sqlstore.New(db)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	s := NewServer(store)
+	cacheDB, err := newCache(cacheUri)
+	if err != nil {
+		return err
+	}
+	defer cacheDB.Close()
+
+	cache, err := rediscache.New(cacheDB)
+	if err != nil {
+		return err
+	}
+
+	s := NewServer(store, cache)
+	s.configureRouter()
 
 	server := &http.Server{
 		Addr: bindAddr,
@@ -35,7 +50,7 @@ func Start() error {
 		WriteTimeout:   10 * time.Second,
 	}
 
-	s.logger.Print(
+	s.logger.Info(
 		fmt.Sprintf(
 			"server up on '%s'",
 			server.Addr,
@@ -57,4 +72,13 @@ func newDB(databaseURI string) (*sql.DB, error) {
 	}
 	
 	return db, nil
+}
+
+func newCache(redisUri string) (*redis.Client, error) {
+    opts, err := redis.ParseURL(redisUri)
+    if err != nil {
+        return nil, err
+    }
+
+    return redis.NewClient(opts), nil
 }
