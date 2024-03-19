@@ -28,34 +28,34 @@ type (
 
 type (
 	NoteRepoGetter interface {
-		GetNoteById(int) (*model.Note, error)
-		GetNotes() ([]*model.Note, error)
-	}
-
-	NoteRepoCreater interface {
-		Create()
+		GetNoteById(int) (model.Note, error)
+		GetNotes(int,string, int, int, int) ([]model.Note, error)
+		HeatCache() ([]model.Note, error)
 	}
 
 	NoteRepoSetter interface {
-		Set()
+		Set(*model.Note) error
+		Patch(*model.Note) error
+		SetNotes() error
 	}
 
 	NoteRepoDeletter interface {
-		Delete()
+		Delete(int) error
 	}
 )
 
 type (
 	NoteCacheGetter interface {
-		Get()
+		GetNoteById(int) (model.Note, error)
 	}
 
 	NoteCacheSetter interface {
-		Set()
+		Set(*model.Note) error
+		SetNotes([]model.Note) error
 	}
 
 	NoteCacheDeletter interface {
-		Delete()
+		Delete(int) error
 	}
 )
 
