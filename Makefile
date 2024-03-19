@@ -4,6 +4,9 @@ run:
 	go mod tidy 
 	go run ./cmd/app/main.go
 
+lint:
+	golangci-lint run ./...
+
 makemigrations:
 	migrate create -ext sql -dir migrations $(name)
 
