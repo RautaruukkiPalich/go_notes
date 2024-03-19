@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/rautaruukkipalich/go_notes/internal/store/cachestore"
 	"github.com/rautaruukkipalich/go_notes/internal/store/sqlstore"
 	"github.com/redis/go-redis/v9"
@@ -14,8 +17,8 @@ import (
 
 const (
 	bindAddr = "localhost:8088"
-	dbUri = "postgres://postgres:postgres@localhost:5432/go_notes?sslmode=disable"
-	cacheUri = "redis://localhost:6379"
+	dbUri = "postgres://postgres:postgres@localhost:5434/go_notes?sslmode=disable"
+	cacheUri = "redis://localhost:6381"
 )
 
 func Start() error {
@@ -45,6 +48,11 @@ func Start() error {
 	}
 
 	s := NewServer(store, cache)
+
+	if err := migrateTables(db); err != nil {
+		s.logger.Error(err)
+	}
+
 	s.configureRouter()
 
 	if err := s.heatCache(); err != nil {
@@ -94,4 +102,22 @@ func newRedis(redisUri string) (*redis.Client, error) {
 	}
 
     return cache, nil
+}
+
+func migrateTables(db *sql.DB) error {
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		return err
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		"postgres", 
+		driver,
+	)
+	if err != nil {
+		return err
+	}
+
+	return m.Up()
 }
