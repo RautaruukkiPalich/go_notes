@@ -35,7 +35,27 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) configureRouter() {
 	s.router.Handle("/notes", s.GetNotes()).Methods(http.MethodGet)
 	s.router.Handle("/notes", s.PostNote()).Methods(http.MethodPost)
-	s.router.Handle("/notes/{id}", s.AuthMiddleware(http.Handler(s.GetNote()))).Methods(http.MethodGet)
+	s.router.Handle("/notes/{id}", s.GetNote()).Methods(http.MethodGet)
 	s.router.Handle("/notes/{id}", s.PatchNote()).Methods(http.MethodPatch)
 	s.router.Handle("/notes/{id}", s.DeleteNote()).Methods(http.MethodDelete)
+	s.router.Use(s.AuthMiddleware)
+}
+
+func (s *Server) heatCache() error {
+	// TODO: heatcache
+	s.logger.Info("heatcache")
+
+	notes, err := s.store.Note().HeatCache()
+	if err != nil {
+		s.logger.Errorf("heat cache %v", err)
+		return err
+	}
+
+	err = s.cache.Note().SetNotes(notes)
+	if err != nil {
+		s.logger.Errorf("heat cache %v", err)
+		return err
+	}
+
+	return nil
 }

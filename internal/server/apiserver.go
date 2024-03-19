@@ -19,6 +19,8 @@ const (
 )
 
 func Start() error {
+
+	//connect db
 	db, err := newDB(dbUri)
 	if err != nil {
 		return err
@@ -30,6 +32,7 @@ func Start() error {
 		return err
 	}
 
+	//connect redis
 	redisDB, err := newRedis(cacheUri)
 	if err != nil {
 		return err
@@ -43,6 +46,13 @@ func Start() error {
 
 	s := NewServer(store, cache)
 	s.configureRouter()
+	// s.store.Note().SetNotes()
+
+	//heat cache with notes 24h
+	err = s.heatCache()
+	if err != nil {
+		return err
+	}
 
 	server := &http.Server{
 		Addr: bindAddr,
