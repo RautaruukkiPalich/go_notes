@@ -1,6 +1,8 @@
 package mockcachestore
 
-type NoteCache struct{
+import "github.com/rautaruukkipalich/go_notes/internal/model"
+
+type NoteCache struct {
 	client map[string]any
 }
 
@@ -10,6 +12,8 @@ func newNoteCache() *NoteCache {
 	}
 }
 
-func (n *NoteCache) Get()    {}
-func (n *NoteCache) Set()    {}
-func (n *NoteCache) Delete() {}
+func (n *NoteCache) Get()                               {}
+func (n *NoteCache) GetNoteById(int)(model.Note, error) { return model.Note{}, nil}
+func (n *NoteCache) Set(*model.Note) error              { return nil }
+func (n *NoteCache) SetNotes([]model.Note) error		{ return nil }
+func (n *NoteCache) Delete(int) error					{ return nil}
