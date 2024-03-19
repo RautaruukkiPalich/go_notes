@@ -3,6 +3,7 @@ package cachestore
 import (
 	"context"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -31,7 +32,7 @@ func (u *UserCache) Set(token string, data []byte, expire time.Time) error {
 	ctx := context.Background()
 	ttl := expire.Sub(time.Now().UTC())
 	if ttl < 0 {
-		return fmt.Errorf("dur -1")
+		return fmt.Errorf("token expired: %v seconds ago", math.Abs(math.Round(ttl.Seconds())))
 	}
 	return u.client.Set(ctx, token, data, ttl).Err()
 }
