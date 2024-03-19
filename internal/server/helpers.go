@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -13,7 +12,7 @@ import (
 type (
 	userKey string
 	
-	notePostForm struct {
+	NotePostForm struct {
 		Body string `json:"body"`
 		IsPublic bool `json:"is_public"`
 	}
@@ -29,6 +28,8 @@ func getIdVarFromRequest(r *http.Request) (int, error) {
 	return strconv.Atoi(strID)
 }
 
+
+//limit, offset and body/author filters
 func getFiltersFromRequest(r *http.Request) (int, int, int, string) {
 	limit, err := strconv.Atoi(r.FormValue("limit"))
 	if err != nil {
@@ -53,17 +54,19 @@ func getFiltersFromRequest(r *http.Request) (int, int, int, string) {
 func (s *Server) GetNoteById(id int) (model.Note, error) {
 	var note model.Note
 
-	fmt.Println("get from cache...")
+	s.logger.Infof("get note %d from cache...", id)
 	note, err := s.cache.Note().GetNoteById(id)
 	if err == nil {
 		return note, nil
 	}
-	fmt.Println("get from db...")
+
+	s.logger.Infof("get note %d from db...", id)
 	note, err = s.store.Note().GetNoteById(id)
 	if err != nil {
 		return note, err
 	}
-	fmt.Println("set to cache...")
+
+	s.logger.Infof("set note %d to cache...", id)
 	if err := s.cache.Note().Set(&note); err != nil {
 		return note, err
 	}

@@ -46,11 +46,8 @@ func Start() error {
 
 	s := NewServer(store, cache)
 	s.configureRouter()
-	// s.store.Note().SetNotes()
 
-	//heat cache with notes 24h
-	err = s.heatCache()
-	if err != nil {
+	if err := s.heatCache(); err != nil {
 		return err
 	}
 

@@ -43,7 +43,7 @@ func (s *Server) configureRouter() {
 
 func (s *Server) heatCache() error {
 	// TODO: heatcache
-	s.logger.Info("heatcache")
+	s.logger.Info("heat cache")
 
 	notes, err := s.store.Note().HeatCache()
 	if err != nil {
@@ -56,6 +56,6 @@ func (s *Server) heatCache() error {
 		s.logger.Errorf("heat cache %v", err)
 		return err
 	}
-
+	s.logger.Info("cache heat over")
 	return nil
 }

@@ -8,4 +8,5 @@ var (
 	ErrNoPermissons        = fmt.Errorf("no permissions")
 	ErrNotFound            = fmt.Errorf("not found")
 	ErrInternalServerError = fmt.Errorf("internal error")
+	ErrInvalidToken 	   = fmt.Errorf("invalid token")
 )

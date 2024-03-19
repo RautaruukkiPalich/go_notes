@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,11 +10,6 @@ import (
 
 	"github.com/rautaruukkipalich/go_notes/internal/model"
 )
-
-var ErrInvalidToken = errors.New("invalid token")
-
-
-
 
 var mockUserInfo = &model.User{
 	ID: 1,
@@ -38,7 +32,7 @@ func validateUserData(user *model.User) error {
 }
 
 func (s *Server) RedisGetUser(token string) (*model.User, error) {
-	s.logger.Info(fmt.Sprintf("redis get %s", token))
+	s.logger.Info(fmt.Sprintf("user get token from cache: %s", token))
 	data, err := s.cache.User().Get(token)
 
 	if err != nil {
