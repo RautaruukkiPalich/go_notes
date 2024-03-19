@@ -15,7 +15,7 @@ type (
 
 	NoteRepo struct {
 		sqlstore *Store
-		stmts []sql.Stmt
+		// stmts []sql.Stmt
 	}
 )
 
