@@ -2,13 +2,23 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/rautaruukkipalich/go_notes/internal/model"
 )
 
-type userKey string
+type (
+	userKey string
+	
+	notePostForm struct {
+		Body string `json:"body"`
+		IsPublic bool `json:"is_public"`
+	}
+)
+
 const (
 	UserKey userKey = "userID" 
 )
@@ -17,6 +27,47 @@ func getIdVarFromRequest(r *http.Request) (int, error) {
 	vars := mux.Vars(r)
 	strID := vars["id"]
 	return strconv.Atoi(strID)
+}
+
+func getFiltersFromRequest(r *http.Request) (int, int, int, string) {
+	limit, err := strconv.Atoi(r.FormValue("limit"))
+	if err != nil {
+		limit = 10
+	}
+
+	offset, err := strconv.Atoi(r.FormValue("offset"))
+	if err != nil {
+		offset = 0
+	}
+
+	filter_author, err := strconv.Atoi(r.FormValue("filter_author"))
+	if err != nil {
+		filter_author = 0
+	}
+
+	filterBody := r.FormValue("filter_body")
+
+	return limit, offset, filter_author, filterBody
+}
+
+func (s *Server) GetNoteById(id int) (model.Note, error) {
+	var note model.Note
+
+	fmt.Println("get from cache...")
+	note, err := s.cache.Note().GetNoteById(id)
+	if err == nil {
+		return note, nil
+	}
+	fmt.Println("get from db...")
+	note, err = s.store.Note().GetNoteById(id)
+	if err != nil {
+		return note, err
+	}
+	fmt.Println("set to cache...")
+	if err := s.cache.Note().Set(&note); err != nil {
+		return note, err
+	}
+	return note, err
 }
 
 func (s *Server) getUserIdFromContext(r *http.Request) int {
