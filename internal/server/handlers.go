@@ -42,7 +42,7 @@ func (s *Server) GetNotes() http.HandlerFunc {
 //	@Tags			notes
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		NotePostForm	true	"note"
+//	@Param			input	body		notePostForm	true	"note"
 //	@Success		200		{object}	nil
 //	@Failure		400,404	{object}	errorResponse
 //	@Success		500		{object}	errorResponse
@@ -126,7 +126,7 @@ func (s *Server) GetNote() http.HandlerFunc {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path		int				true	"note identifier"
-//	@Param			input	body		NotePostForm	true	"note"
+//	@Param			input	body		notePostForm	true	"note"
 //	@Success		200		{object}	nil
 //	@Failure		400,404	{object}	errorResponse
 //	@Success		500		{object}	errorResponse

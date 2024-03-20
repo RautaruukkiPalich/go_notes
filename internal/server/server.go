@@ -53,13 +53,13 @@ func (s *Server) heatCache() error {
 
 	notes, err := s.store.Note().HeatCache()
 	if err != nil {
-		s.logger.Errorf("heat cache %v", err)
+		s.logger.Errorf("get notes from db. heat cache: %v", err)
 		return err
 	}
 
 	err = s.cache.Note().SetNotes(notes)
 	if err != nil {
-		s.logger.Errorf("heat cache %v", err)
+		s.logger.Errorf("set notes to cache. heat cache: %v", err)
 		return err
 	}
 	s.logger.Info("cache heat over")

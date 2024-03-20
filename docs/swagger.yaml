@@ -15,19 +15,19 @@ definitions:
       updated_at:
         type: string
     type: object
-  server.NotePostForm:
-    properties:
-      body:
-        type: string
-      is_public:
-        type: boolean
-    type: object
   server.errorResponse:
     properties:
       code:
         type: integer
       error:
         type: string
+    type: object
+  server.notePostForm:
+    properties:
+      body:
+        type: string
+      is_public:
+        type: boolean
     type: object
 host: localhost:8088
 info:
@@ -96,7 +96,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/server.NotePostForm'
+          $ref: '#/definitions/server.notePostForm'
       produces:
       - application/json
       responses:
@@ -207,7 +207,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/server.NotePostForm'
+          $ref: '#/definitions/server.notePostForm'
       produces:
       - application/json
       responses:

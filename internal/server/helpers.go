@@ -12,7 +12,7 @@ import (
 type (
 	userKey string
 	
-	NotePostForm struct {
+	notePostForm struct {
 		Body string `json:"body"`
 		IsPublic bool `json:"is_public"`
 	}

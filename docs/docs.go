@@ -109,7 +109,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/server.NotePostForm"
+                            "$ref": "#/definitions/server.notePostForm"
                         }
                     }
                 ],
@@ -276,7 +276,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/server.NotePostForm"
+                            "$ref": "#/definitions/server.notePostForm"
                         }
                     }
                 ],
@@ -336,17 +336,6 @@ const docTemplate = `{
                 }
             }
         },
-        "server.NotePostForm": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "is_public": {
-                    "type": "boolean"
-                }
-            }
-        },
         "server.errorResponse": {
             "type": "object",
             "properties": {
@@ -355,6 +344,17 @@ const docTemplate = `{
                 },
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "server.notePostForm": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "is_public": {
+                    "type": "boolean"
                 }
             }
         }
