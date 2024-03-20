@@ -7,6 +7,20 @@ import (
 	"github.com/rautaruukkipalich/go_notes/internal/model"
 )
 
+//	@Summary		Get Notes
+//	@Description	get notes.
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@Param			limit			query		int		false	"limit"
+//	@Param			offset			query		int		false	"offset"
+//	@Param			filter_author	query		int		false	"filter_author"
+//	@Param			filter_body		query		string	false	"filter_body"
+//	@Success		200				{object}	[]model.Note
+//	@Failure		400,404			{object}	errorResponse
+//	@Success		500				{object}	errorResponse
+//	@Success		default			{object}	errorResponse
+//	@Router			/notes [get]
 func (s *Server) GetNotes() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := s.getUserIdFromContext(r)
@@ -16,13 +30,24 @@ func (s *Server) GetNotes() http.HandlerFunc {
 		notes, err := s.store.Note().GetNotes(userID, filter_body, filter_author, limit, offset)
 		if err != nil {
 			s.logger.Error(err)
-			s.error(w, r, errorResponse{http.StatusInternalServerError,	ErrInternalServerError.Error()})
+			s.error(w, r, errorResponse{http.StatusInternalServerError, ErrInternalServerError.Error()})
 			return
 		}
 		s.respond(w, r, http.StatusOK, notes)
 	}
 }
 
+//	@Summary		Post New Note
+//	@Description	post note
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		NotePostForm	true	"note"
+//	@Success		200		{object}	nil
+//	@Failure		400,404	{object}	errorResponse
+//	@Success		500		{object}	errorResponse
+//	@Success		default	{object}	errorResponse
+//	@Router			/notes [post]
 func (s *Server) PostNote() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := s.getUserIdFromContext(r)
@@ -51,6 +76,17 @@ func (s *Server) PostNote() http.HandlerFunc {
 	}
 }
 
+//	@Summary		Get note by ID
+//	@Description	get note
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int	true	"note identifier"
+//	@Success		200		{object}	model.Note
+//	@Failure		400,404	{object}	errorResponse
+//	@Success		500		{object}	errorResponse
+//	@Success		default	{object}	errorResponse
+//	@Router			/notes/{id} [get]
 func (s *Server) GetNote() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -66,7 +102,7 @@ func (s *Server) GetNote() http.HandlerFunc {
 		if userID == 0 {
 			s.error(w, r, errorResponse{http.StatusForbidden, ErrNoPermissons.Error()})
 			return
-		} 
+		}
 
 		note, err := s.GetNoteById(id)
 		if err != nil {
@@ -78,12 +114,24 @@ func (s *Server) GetNote() http.HandlerFunc {
 		if !note.IsPublic && note.AuthorID != userID {
 			s.error(w, r, errorResponse{http.StatusForbidden, ErrNoPermissons.Error()})
 			return
-		} 
+		}
 
 		s.respond(w, r, http.StatusOK, note)
 	}
 }
 
+//	@Summary		Patch note by ID
+//	@Description	patch note
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int				true	"note identifier"
+//	@Param			input	body		NotePostForm	true	"note"
+//	@Success		200		{object}	nil
+//	@Failure		400,404	{object}	errorResponse
+//	@Success		500		{object}	errorResponse
+//	@Success		default	{object}	errorResponse
+//	@Router			/notes/{id} [patch]
 func (s *Server) PatchNote() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := getIdVarFromRequest(r)
@@ -123,7 +171,7 @@ func (s *Server) PatchNote() http.HandlerFunc {
 
 		if err := s.store.Note().Patch(&note); err != nil {
 			s.logger.Error(err.Error())
-			s.error(w, r, errorResponse{http.StatusInternalServerError,	ErrInternalServerError.Error()})
+			s.error(w, r, errorResponse{http.StatusInternalServerError, ErrInternalServerError.Error()})
 			return
 		}
 
@@ -135,6 +183,17 @@ func (s *Server) PatchNote() http.HandlerFunc {
 	}
 }
 
+//	@Summary		Del note by ID
+//	@Description	del note
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int	true	"note identifier"
+//	@Success		200		{object}	nil
+//	@Failure		400,404	{object}	errorResponse
+//	@Success		500		{object}	errorResponse
+//	@Success		default	{object}	errorResponse
+//	@Router			/notes/{id} [delete]
 func (s *Server) DeleteNote() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := getIdVarFromRequest(r)
@@ -161,7 +220,7 @@ func (s *Server) DeleteNote() http.HandlerFunc {
 
 		if err = s.store.Note().Delete(id); err != nil {
 			s.logger.Error(err.Error())
-			s.error(w, r, errorResponse{http.StatusInternalServerError,	ErrInternalServerError.Error()})
+			s.error(w, r, errorResponse{http.StatusInternalServerError, ErrInternalServerError.Error()})
 			return
 		}
 

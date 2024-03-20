@@ -1,0 +1,235 @@
+basePath: /
+definitions:
+  model.Note:
+    properties:
+      author_id:
+        type: integer
+      body:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_public:
+        type: boolean
+      updated_at:
+        type: string
+    type: object
+  server.NotePostForm:
+    properties:
+      body:
+        type: string
+      is_public:
+        type: boolean
+    type: object
+  server.errorResponse:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+    type: object
+host: localhost:8088
+info:
+  contact: {}
+  description: This is a sample Note service
+  title: Swagger Example API
+  version: 0.0.1
+paths:
+  /notes:
+    get:
+      consumes:
+      - application/json
+      description: get notes.
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      - description: filter_author
+        in: query
+        name: filter_author
+        type: integer
+      - description: filter_body
+        in: query
+        name: filter_body
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Note'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Get Notes
+      tags:
+      - notes
+    post:
+      consumes:
+      - application/json
+      description: post note
+      parameters:
+      - description: note
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/server.NotePostForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Post New Note
+      tags:
+      - notes
+  /notes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: del note
+      parameters:
+      - description: note identifier
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Del note by ID
+      tags:
+      - notes
+    get:
+      consumes:
+      - application/json
+      description: get note
+      parameters:
+      - description: note identifier
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Note'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Get note by ID
+      tags:
+      - notes
+    patch:
+      consumes:
+      - application/json
+      description: patch note
+      parameters:
+      - description: note identifier
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: note
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/server.NotePostForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Patch note by ID
+      tags:
+      - notes
+swagger: "2.0"

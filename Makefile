@@ -7,6 +7,10 @@ run:
 lint:
 	golangci-lint run ./...
 
+swagger:
+	swag init -g cmd/app/main.go
+	swag fmt
+
 makemigrations:
 	migrate create -ext sql -dir migrations $(name)
 
