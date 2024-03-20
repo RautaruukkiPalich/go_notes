@@ -62,6 +62,8 @@ func (s *Server) RedisSetUser(token string, user *model.User) error{
 func (s *Server) AuthMiddleware(next http.Handler) http.Handler{
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			s.logger.Info(r.URL)
+
 			authHeader := r.Header.Get("Authorization")
 			authHeaderChunks := strings.Split(authHeader, " ")
 
