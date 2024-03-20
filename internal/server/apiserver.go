@@ -16,9 +16,16 @@ import (
 )
 
 const (
-	bindAddr = "localhost:8088"
-	dbUri = "postgres://postgres:postgres@localhost:5434/go_notes?sslmode=disable"
-	cacheUri = "redis://localhost:6381"
+	// local app
+	// bindAddr = "localhost:8088"
+	// dbUri = "postgres://postgres:postgres@localhost:5434/go_notes?sslmode=disable"
+	// cacheUri = "redis://localhost:6381"
+
+
+	// docker app
+	bindAddr = "0.0.0.0:8088"
+	dbUri = "postgres://postgres:postgres@database:5432/go_notes?sslmode=disable"
+	cacheUri = "redis://redis:6379"
 )
 
 func Start() error {
