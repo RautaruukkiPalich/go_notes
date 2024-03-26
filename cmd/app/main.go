@@ -13,6 +13,10 @@ import (
 
 //	@host		localhost:8088
 //	@BasePath	/
+
+//	@SecurityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
 func main() {
 	if err := server.Start(); err != nil {
 		log.Fatal(err)
