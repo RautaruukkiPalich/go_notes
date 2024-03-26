@@ -2,6 +2,8 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -21,6 +23,62 @@ type (
 const (
 	UserKey userKey = "userID" 
 )
+
+
+func getUserInfoByToken(token string) (*model.User, error) {
+	// user := mockUserInfo
+
+	var user model.User
+
+	res, err := checkAuth(token)
+
+	if err != nil {
+		return &user, err
+	}
+
+	if res.StatusCode != 200 {
+		return &user, fmt.Errorf("check token: status code = %d", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+    if err != nil {
+		return &user, err
+    }
+
+	fmt.Println(string(body))
+
+	defer res.Body.Close()
+
+	if err := json.Unmarshal(body, &user); err != nil {
+		return &user, err
+	}
+
+	// if token expires -> request to sso -> get new token
+
+	return &user, nil
+}
+
+
+func checkAuth(token string) (*http.Response, error) {
+	client := &http.Client{}
+
+	auth_url := "http://localhost:8080/me"
+	auth_request, err := http.NewRequest(http.MethodGet, auth_url, nil)
+	
+	if err != nil {
+		return nil, fmt.Errorf("404")
+	}
+
+	auth_request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+
+	return client.Do(auth_request)
+}
+
+func validateUserData(user *model.User) error {
+	if user.ID == 0 {return ErrInvalidToken}
+	// if user.TokenTTL.Unix() < time.Now().UTC().Unix() {return ErrInvalidToken}
+	return nil
+}
 
 func getIdVarFromRequest(r *http.Request) (int, error) {
 	vars := mux.Vars(r)

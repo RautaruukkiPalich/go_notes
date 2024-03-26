@@ -11,32 +11,11 @@ import (
 	"github.com/rautaruukkipalich/go_notes/internal/model"
 )
 
-var mockUserInfo = &model.User{
-	ID: 1,
-	TokenTTL: time.Time(time.Now().UTC().Add(time.Minute*10)),
-	Valid: true,
-}
-
-func getUserInfoByToken(token string) (*model.User, error) {
-	user := mockUserInfo
-	// if token expires -> request to sso -> get new token
-	// user.TokenTTL = time.Now().UTC().Add(time.Second*15)
-	return user, nil
-}
-
-func validateUserData(user *model.User) error {
-	if user.ID == 0 {return ErrInvalidToken}
-	if !user.Valid {return ErrInvalidToken}
-	// if user.TokenTTL.Unix() < time.Now().UTC().Unix() {return ErrInvalidToken}
-	return nil
-}
-
 func (s *Server) RedisGetUser(token string) (*model.User, error) {
 	s.logger.Info(fmt.Sprintf("user get token from cache: %s", token))
 	data, err := s.cache.User().Get(token)
 
 	if err != nil {
-		fmt.Printf("%T", err)
 		s.logger.Errorf("redis err: %v", err)
 		return nil, err
 	}
@@ -64,8 +43,7 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler{
 		func(w http.ResponseWriter, r *http.Request) {
 			s.logger.Info(r.URL)
 
-			authHeader := r.Header.Get("Authorization")
-			authHeaderChunks := strings.Split(authHeader, " ")
+			authHeaderChunks := strings.Split(r.Header.Get("Authorization"), " ")
 
 			if len(authHeaderChunks) != 2 {
 				s.logger.Info("user is not authorized")
@@ -80,21 +58,23 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler{
 				user, err = getUserInfoByToken(token)
 				// user.TokenTTL = time.Now().UTC().Add(time.Duration(time.Second*15))
 				if err != nil {
-					s.logger.Errorf("get user info b token: %v", err)
+					s.logger.Errorf("get user info by token: %v", err)
 					s.error(w, r, errorResponse{Error: ErrInternalServerError.Error(), Code: http.StatusInternalServerError})
 					return
 				}
 
 				//validate user
 				if err := validateUserData(user); err != nil {
-					s.logger.Errorf("get user info b token: %v", err)
+					s.logger.Errorf("get user info by token: %v", err)
 					s.error(w, r, errorResponse{Error: ErrInvalidToken.Error(), Code: http.StatusForbidden})
 					return
 				}
 				
 				//set redis
+				user.TokenTTL = time.Now().Add(time.Second * 40)
 				if err := s.RedisSetUser(token, user); err != nil{
 					s.logger.Errorf("redis: set user err: %v", err)
+					fmt.Println("user: ", user)
 				}
 			} 
 			
