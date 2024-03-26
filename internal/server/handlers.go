@@ -8,7 +8,8 @@ import (
 )
 
 //	@Summary		Get Notes
-//	@Description	get notes.
+//	@Security		ApiKeyAuth
+//	@Description	get notes
 //	@Tags			notes
 //	@Accept			json
 //	@Produce		json
@@ -38,6 +39,7 @@ func (s *Server) GetNotes() http.HandlerFunc {
 }
 
 //	@Summary		Post New Note
+//	@Security		ApiKeyAuth
 //	@Description	post note
 //	@Tags			notes
 //	@Accept			json
@@ -77,6 +79,7 @@ func (s *Server) PostNote() http.HandlerFunc {
 }
 
 //	@Summary		Get note by ID
+//	@Security		ApiKeyAuth
 //	@Description	get note
 //	@Tags			notes
 //	@Accept			json
@@ -121,6 +124,7 @@ func (s *Server) GetNote() http.HandlerFunc {
 }
 
 //	@Summary		Patch note by ID
+//	@Security		ApiKeyAuth
 //	@Description	patch note
 //	@Tags			notes
 //	@Accept			json
@@ -152,7 +156,7 @@ func (s *Server) PatchNote() http.HandlerFunc {
 		}
 
 		if note.AuthorID != userID {
-			s.logger.Errorf("%d: forbidden patch note id%d", userID, note.ID)
+			s.logger.Errorf("user %d: forbidden patch note id%d", userID, note.ID)
 			s.error(w, r, errorResponse{http.StatusForbidden, ErrNoPermissons.Error()})
 			return
 		}
@@ -184,6 +188,7 @@ func (s *Server) PatchNote() http.HandlerFunc {
 }
 
 //	@Summary		Del note by ID
+//	@Security		ApiKeyAuth
 //	@Description	del note
 //	@Tags			notes
 //	@Accept			json

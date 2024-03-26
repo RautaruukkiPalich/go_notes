@@ -17,7 +17,12 @@ const docTemplate = `{
     "paths": {
         "/notes": {
             "get": {
-                "description": "get notes.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get notes",
                 "consumes": [
                     "application/json"
                 ],
@@ -91,6 +96,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "post note",
                 "consumes": [
                     "application/json"
@@ -146,6 +156,11 @@ const docTemplate = `{
         },
         "/notes/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get note",
                 "consumes": [
                     "application/json"
@@ -200,6 +215,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "del note",
                 "consumes": [
                     "application/json"
@@ -251,6 +271,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "patch note",
                 "consumes": [
                     "application/json"
@@ -357,6 +382,13 @@ const docTemplate = `{
                     "type": "boolean"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
