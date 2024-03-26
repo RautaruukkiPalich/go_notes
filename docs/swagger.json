@@ -11,7 +11,12 @@
     "paths": {
         "/notes": {
             "get": {
-                "description": "get notes.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get notes",
                 "consumes": [
                     "application/json"
                 ],
@@ -85,6 +90,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "post note",
                 "consumes": [
                     "application/json"
@@ -140,6 +150,11 @@
         },
         "/notes/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "get note",
                 "consumes": [
                     "application/json"
@@ -194,6 +209,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "del note",
                 "consumes": [
                     "application/json"
@@ -245,6 +265,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "patch note",
                 "consumes": [
                     "application/json"
@@ -351,6 +376,13 @@
                     "type": "boolean"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

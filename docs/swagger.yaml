@@ -40,7 +40,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get notes.
+      description: get notes
       parameters:
       - description: limit
         in: query
@@ -83,6 +83,8 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/server.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get Notes
       tags:
       - notes
@@ -118,6 +120,8 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/server.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Post New Note
       tags:
       - notes
@@ -153,6 +157,8 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/server.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Del note by ID
       tags:
       - notes
@@ -189,6 +195,8 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/server.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get note by ID
       tags:
       - notes
@@ -229,7 +237,14 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/server.errorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Patch note by ID
       tags:
       - notes
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
