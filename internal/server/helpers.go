@@ -157,10 +157,10 @@ func (s *Server) getUserIdFromContext(r *http.Request) int {
 
 func (s *Server) error(w http.ResponseWriter, r *http.Request, err errorResponse) {
 	s.logger.Printf("error: %v", err)
-	s.respond(w, r, err.Code, err)
+	s.JSONrespond(w, r, err.Code, err)
 }
 
-func (s *Server) respond(w http.ResponseWriter, r *http.Request, code int, data any) {
+func (s *Server) JSONrespond(w http.ResponseWriter, r *http.Request, code int, data any) {
 	w.WriteHeader(code)
 	if data != nil {
 		w.Header().Add("Content-Type", "application/json")

@@ -34,7 +34,7 @@ func (s *Server) GetNotes() http.HandlerFunc {
 			s.error(w, r, errorResponse{http.StatusInternalServerError, ErrInternalServerError.Error()})
 			return
 		}
-		s.respond(w, r, http.StatusOK, notes)
+		s.JSONrespond(w, r, http.StatusOK, notes)
 	}
 }
 
@@ -74,7 +74,7 @@ func (s *Server) PostNote() http.HandlerFunc {
 			return
 		}
 
-		s.respond(w, r, http.StatusOK, nil)
+		s.JSONrespond(w, r, http.StatusOK, nil)
 	}
 }
 
@@ -119,7 +119,7 @@ func (s *Server) GetNote() http.HandlerFunc {
 			return
 		}
 
-		s.respond(w, r, http.StatusOK, note)
+		s.JSONrespond(w, r, http.StatusOK, note)
 	}
 }
 
@@ -183,7 +183,7 @@ func (s *Server) PatchNote() http.HandlerFunc {
 			s.logger.Error(err.Error())
 		}
 
-		s.respond(w, r, http.StatusOK, nil)
+		s.JSONrespond(w, r, http.StatusOK, nil)
 	}
 }
 
@@ -233,6 +233,6 @@ func (s *Server) DeleteNote() http.HandlerFunc {
 			s.logger.Error(err.Error())
 		}
 
-		s.respond(w, r, http.StatusOK, nil)
+		s.JSONrespond(w, r, http.StatusOK, nil)
 	}
 }
