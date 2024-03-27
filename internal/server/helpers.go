@@ -2,11 +2,14 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
 	"github.com/rautaruukkipalich/go_notes/internal/model"
 )
@@ -24,59 +27,70 @@ const (
 	UserKey userKey = "userID" 
 )
 
-
-func getUserInfoByToken(token string) (*model.User, error) {
-	// user := mockUserInfo
-
-	var user model.User
-
-	res, err := checkAuth(token)
-
-	if err != nil {
-		return &user, err
-	}
-
-	if res.StatusCode != 200 {
-		return &user, fmt.Errorf("check token: status code = %d", res.StatusCode)
-	}
-
-	body, err := io.ReadAll(res.Body)
-    if err != nil {
-		return &user, err
-    }
-
-	fmt.Println(string(body))
-
-	defer res.Body.Close()
-
-	if err := json.Unmarshal(body, &user); err != nil {
-		return &user, err
-	}
-
-	// if token expires -> request to sso -> get new token
-
-	return &user, nil
+func getClaimsFromJWT(token string)(map[string]interface{}, error) {
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(
+		token,
+		claims, 
+		func(token *jwt.Token) (interface{}, error) {return []byte{}, nil},
+	)
+	return claims, err
 }
 
-
-func checkAuth(token string) (*http.Response, error) {
+func getUserInfoFromAuth(token string, user *model.User) (*model.User, error) {
 	client := &http.Client{}
 
 	auth_url := "http://localhost:8080/me"
 	auth_request, err := http.NewRequest(http.MethodGet, auth_url, nil)
 	
 	if err != nil {
+		// TODO: handle error here
 		return nil, fmt.Errorf("404")
 	}
 
 	auth_request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	return client.Do(auth_request)
+	res, err := client.Do(auth_request)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("check token: status code = %d", res.StatusCode)
+	}
+
+	body, err := io.ReadAll(res.Body)
+    if err != nil {
+		return nil, err
+    }
+
+	defer res.Body.Close()
+
+	if err := json.Unmarshal(body, user); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func getUserByToken(token string) (*model.User, error) {
+
+	var user model.User
+	
+	claims, _ := getClaimsFromJWT(token)
+	exp := claims["exp"]
+	if exp == nil {
+		// TODO: handle error token expired
+		return &user, errors.New("token expired")
+	}
+	user.TokenTTL = time.Unix(int64(exp.(float64)), 0)
+
+	return getUserInfoFromAuth(token, &user)
 }
 
 func validateUserData(user *model.User) error {
 	if user.ID == 0 {return ErrInvalidToken}
-	// if user.TokenTTL.Unix() < time.Now().UTC().Unix() {return ErrInvalidToken}
+	if user.TokenTTL.Unix() < time.Now().UTC().Unix() {return ErrInvalidToken}
 	return nil
 }
 

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/rautaruukkipalich/go_notes/internal/model"
 )
@@ -55,8 +54,7 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler{
 
 			user, err := s.RedisGetUser(token)
 			if err != nil {
-				user, err = getUserInfoByToken(token)
-				// user.TokenTTL = time.Now().UTC().Add(time.Duration(time.Second*15))
+				user, err = getUserByToken(token)
 				if err != nil {
 					s.logger.Errorf("get user info by token: %v", err)
 					s.error(w, r, errorResponse{Error: ErrInternalServerError.Error(), Code: http.StatusInternalServerError})
@@ -65,13 +63,12 @@ func (s *Server) AuthMiddleware(next http.Handler) http.Handler{
 
 				//validate user
 				if err := validateUserData(user); err != nil {
-					s.logger.Errorf("get user info by token: %v", err)
+					s.logger.Errorf("validate user: %v", err)
 					s.error(w, r, errorResponse{Error: ErrInvalidToken.Error(), Code: http.StatusForbidden})
 					return
 				}
 				
 				//set redis
-				user.TokenTTL = time.Now().Add(time.Second * 40)
 				if err := s.RedisSetUser(token, user); err != nil{
 					s.logger.Errorf("redis: set user err: %v", err)
 					fmt.Println("user: ", user)
