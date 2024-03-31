@@ -2,6 +2,7 @@ package sqlstore
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/rautaruukkipalich/go_notes/internal/model"
@@ -90,7 +91,8 @@ func (r *NoteRepo) HeatCache() ([]model.Note, error) {
 func (r *NoteRepo) Set(n *model.Note) (*model.Note, error) {
 	stmt := `insert	into notes 
 			(author_id, body, is_public, created_at, updated_at) 
-			values ($1, $2, $3, $4, $5)`
+			values ($1, $2, $3, $4, $5)
+			returning id`
 	now := time.Now().UTC()
 	n.CreatedAt = now
 	n.UpdatedAt = now
@@ -105,15 +107,30 @@ func (r *NoteRepo) Patch(n *model.Note) error {
 			set body = $1, is_public=$2, updated_at=$3 
 			where id = $4`
 	now := time.Now().UTC()
-	_, err := r.sqlstore.db.Exec(stmt,
+	res, err := r.sqlstore.db.Exec(stmt,
 		n.Body,	n.IsPublic, now, n.ID, 
 	)
+	if err != nil {
+		return err
+	}
+
+	count, err := res.RowsAffected()
+	if count == 0 {
+		return errors.New("no notes updated")
+	}
 	return err
 }
 
 func (r *NoteRepo) Delete(id int) error {
 	stmt := `delete from notes where id = $1`
-	_, err := r.sqlstore.db.Exec(stmt, id) 
+	res, err := r.sqlstore.db.Exec(stmt, id) 
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if count == 0 {
+		return errors.New("no notes deleted")
+	}
 	return err
 }
 

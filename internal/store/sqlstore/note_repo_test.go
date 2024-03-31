@@ -1,23 +1,28 @@
-package mockstore_test
+package sqlstore_test
 
 import (
 	"testing"
 
 	"github.com/rautaruukkipalich/go_notes/internal/model"
+	sqlstore "github.com/rautaruukkipalich/go_notes/internal/store/sqlstore"
 	mockstore "github.com/rautaruukkipalich/go_notes/internal/store/mocksqlstore"
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNoteRepository_Create(t *testing.T) {
+	db, teardown := sqlstore.TestDB(t, databaseUrl)
+	defer teardown("notes")
+	s, _ := sqlstore.New(db)
 
-func TestNoteRepository_Set(t *testing.T) {
-	s, _ := mockstore.New()
 	n, err := s.Note().Set(model.TestNote(t))
 	assert.NoError(t, err)
 	assert.NotNil(t, n)
 }
 
 func TestNoteRepository_GetNoteById(t *testing.T) {
-	s, _ := mockstore.New()
+	db, teardown := sqlstore.TestDB(t, databaseUrl)
+	defer teardown("notes")
+	s, _ := sqlstore.New(db)
 
 	id := 213
 	_, err := s.Note().GetNoteById(id)
@@ -30,20 +35,25 @@ func TestNoteRepository_GetNoteById(t *testing.T) {
 }
 
 func TestNoteRepository_GetNotes(t *testing.T) {
-	s, _ := mockstore.New()
-
+	db, teardown := sqlstore.TestDB(t, databaseUrl)
+	defer teardown("notes")
+	s, _ := sqlstore.New(db)
 
 	userId, filter_body, filter_author, limit, offset := 1, "", 2, 2, 3
-	_, err := s.Note().GetNotes(userId, filter_body, filter_author, limit, offset)
-	assert.Error(t, err)
+	notes, err := s.Note().GetNotes(userId, filter_body, filter_author, limit, offset)
+	assert.NoError(t, err)
+	assert.Len(t, notes, 0)
 
 	for _, tc := range mockstore.Test_notes {
 		note := tc
-		s.Note().Set(&note)
+		_, err := s.Note().Set(&note)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	userId, filter_body, filter_author, limit, offset = 1, "", 1, 2, 0
-	notes, err := s.Note().GetNotes(userId, filter_body, filter_author, limit, offset)
+	notes, err = s.Note().GetNotes(userId, filter_body, filter_author, limit, offset)
 	assert.NoError(t, err)
 	assert.Len(t, notes, 2)
 
@@ -59,12 +69,14 @@ func TestNoteRepository_GetNotes(t *testing.T) {
 
 	userId, filter_body, filter_author, limit, offset = 1, "", 0, 2, 7
 	notes, err = s.Note().GetNotes(userId, filter_body, filter_author, limit, offset)
-	assert.Error(t, err)
+	assert.NoError(t, err)
 	assert.Len(t, notes, 0)
 }
 
 func TestNoteRepository_Patch(t *testing.T) {
-	s, _ := mockstore.New()
+	db, teardown := sqlstore.TestDB(t, databaseUrl)
+	defer teardown("notes")
+	s, _ := sqlstore.New(db)
 
 	err := s.Note().Patch(model.TestNote(t))
 	assert.Error(t, err)
@@ -83,7 +95,9 @@ func TestNoteRepository_Patch(t *testing.T) {
 }
 
 func TestNoteRepository_Delete(t *testing.T) {
-	s, _ := mockstore.New()
+	db, teardown := sqlstore.TestDB(t, databaseUrl)
+	defer teardown("notes")
+	s, _ := sqlstore.New(db)
 
 	err := s.Note().Delete(2)
 	assert.Error(t, err)
@@ -93,15 +107,21 @@ func TestNoteRepository_Delete(t *testing.T) {
 		s.Note().Set(&note)
 	}
 
-	err = s.Note().Delete(2)
-	assert.NoError(t, err)
+	notes, _ := s.Note().GetNotes(0, "", 0, 5, 0)
+	ids := []int{}
+	for _, note := range notes {
+		ids = append(ids, note.ID)
+	}
 
-	err = s.Note().Delete(2)
+	err = s.Note().Delete(ids[len(ids) - 1] + 1)
 	assert.Error(t, err)
 
-	err = s.Note().Delete(4)
+	err = s.Note().Delete(ids[len(ids) - 1] + 5)
+	assert.Error(t, err)
+
+	err = s.Note().Delete(ids[len(ids) - 1])
 	assert.NoError(t, err)
 
-	notesAfter, _ := s.Note().GetNotes(0, "", 0, 10, 0)
-	assert.Len(t, notesAfter, 3)
+	notesAfter, _ := s.Note().GetNotes(0, "", 0, 5, 0)
+	assert.Len(t, notesAfter, 4)
 }
