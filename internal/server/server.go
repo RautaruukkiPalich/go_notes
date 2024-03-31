@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 
@@ -23,19 +24,44 @@ func NewServer(
 	store store.Store,
 	cache store.Cache,
 ) *Server {
-	return &Server{
+	s := &Server{
 		store: store,
 		cache: cache,
-		router: mux.NewRouter(),
-		logger: logrus.New(),
 	}
+	s.configureRouter()
+	s.configureLogger("debug")
+	return s
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
+func (s *Server) configureLogger(lvl string) {
+	
+	level, err := logrus.ParseLevel(lvl)
+	if err != nil {
+		panic(err)
+	}
+
+	s.logger = &logrus.Logger{
+		Out: os.Stdout,
+		Level: level,
+		Formatter: &logrus.JSONFormatter{
+			FieldMap: logrus.FieldMap{
+			   logrus.FieldKeyTime:  "timestamp",
+			   logrus.FieldKeyLevel: "level",
+			   logrus.FieldKeyMsg:   "message",
+			   logrus.FieldKeyFunc:  "caller",
+			},
+		},
+	}
+}
+
 func (s *Server) configureRouter() {
+
+	s.router = mux.NewRouter()
+
 	s.router.PathPrefix("/swagger/").HandlerFunc(httpSwagger.WrapHandler)
 
 	s.router.Handle("/notes", s.GetNotes()).Methods(http.MethodGet)

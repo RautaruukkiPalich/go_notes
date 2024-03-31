@@ -65,8 +65,6 @@ func Start() error {
 		s.logger.Error(err)
 	}
 
-	s.configureRouter()
-
 	if err := s.heatCache(); err != nil {
 		return err
 	}
