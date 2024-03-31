@@ -40,12 +40,12 @@ func getClaimsFromJWT(token string)(map[string]interface{}, error) {
 func getUserInfoFromAuth(token string, user *model.User) (*model.User, error) {
 	client := &http.Client{}
 
-	auth_url := "http://localhost:8080/me"
+	auth_url := "http://localhost:8081/me"
 	auth_request, err := http.NewRequest(http.MethodGet, auth_url, nil)
 	
 	if err != nil {
 		// TODO: handle error here
-		return nil, fmt.Errorf("404")
+		return user, fmt.Errorf("404")
 	}
 
 	auth_request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
@@ -53,39 +53,39 @@ func getUserInfoFromAuth(token string, user *model.User) (*model.User, error) {
 	res, err := client.Do(auth_request)
 
 	if err != nil {
-		return nil, err
+		return user, err
 	}
 
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("check token: status code = %d", res.StatusCode)
+		return user, fmt.Errorf("check token: status code = %d", res.StatusCode)
 	}
 
 	body, err := io.ReadAll(res.Body)
     if err != nil {
-		return nil, err
+		return user, err
     }
 
 	defer res.Body.Close()
 
 	if err := json.Unmarshal(body, user); err != nil {
-		return nil, err
+		return user, err
 	}
 	return user, nil
 }
 
 func getUserByToken(token string) (*model.User, error) {
-
-	var user model.User
 	
 	claims, _ := getClaimsFromJWT(token)
 	exp := claims["exp"]
+
+	user := &model.User{}
 	if exp == nil {
 		// TODO: handle error token expired
-		return &user, errors.New("token expired")
+		return user, errors.New("token expired")
 	}
 	user.TokenTTL = time.Unix(int64(exp.(float64)), 0)
 
-	return getUserInfoFromAuth(token, &user)
+	return getUserInfoFromAuth(token, user)
 }
 
 func validateUserData(user *model.User) error {

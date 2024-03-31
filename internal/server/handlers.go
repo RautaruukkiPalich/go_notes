@@ -68,7 +68,8 @@ func (s *Server) PostNote() http.HandlerFunc {
 		}
 		note.AuthorID = userID
 
-		if err := s.store.Note().Set(note); err != nil {
+		_, err := s.store.Note().Set(note)
+		if err != nil {
 			s.logger.Error(err.Error())
 			s.error(w, r, errorResponse{http.StatusInternalServerError, ErrInternalServerError.Error()})
 			return
