@@ -27,12 +27,12 @@ const (
 	UserKey userKey = "userID" 
 )
 
-func getClaimsFromJWT(token string)(map[string]interface{}, error) {
+func getClaimsFromJWT(token string)(map[string]any, error) {
 	claims := jwt.MapClaims{}
 	_, err := jwt.ParseWithClaims(
 		token,
 		claims, 
-		func(token *jwt.Token) (interface{}, error) {return []byte{}, nil},
+		func(token *jwt.Token) (any, error) {return []byte{}, nil},
 	)
 	return claims, err
 }
