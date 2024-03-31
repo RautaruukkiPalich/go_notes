@@ -34,9 +34,8 @@ type (
 	}
 
 	NoteRepoSetter interface {
-		Set(*model.Note) error
+		Set(*model.Note) (*model.Note, error)
 		Patch(*model.Note) error
-		SetNotes() error
 	}
 
 	NoteRepoDeletter interface {

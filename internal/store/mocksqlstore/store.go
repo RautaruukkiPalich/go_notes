@@ -13,7 +13,8 @@ type (
 
 	NoteRepo struct {
 		store *Store
-		notes map[string]*model.Note
+		notes map[int]*model.Note
+		currentId int
 	}
 )
 
@@ -33,7 +34,7 @@ func New() (*Store, error) {
 func newNoteRepo(s *Store) (*NoteRepo, error) {
 	return &NoteRepo{
 		store: s,
-		notes: make(map[string]*model.Note),
+		notes: make(map[int]*model.Note),
 	}, nil
 }
 

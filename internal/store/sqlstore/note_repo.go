@@ -2,8 +2,6 @@ package sqlstore
 
 import (
 	"database/sql"
-	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/rautaruukkipalich/go_notes/internal/model"
@@ -89,15 +87,17 @@ func (r *NoteRepo) HeatCache() ([]model.Note, error) {
 	return parseRowsToSliceNotes(rows)
 }
 
-func (r *NoteRepo) Set(n *model.Note) error {
+func (r *NoteRepo) Set(n *model.Note) (*model.Note, error) {
 	stmt := `insert	into notes 
 			(author_id, body, is_public, created_at, updated_at) 
 			values ($1, $2, $3, $4, $5)`
 	now := time.Now().UTC()
-	_, err := r.sqlstore.db.Exec(stmt,
-		n.AuthorID, n.Body,	n.IsPublic, now, now, 
-	)
-	return err
+	n.CreatedAt = now
+	n.UpdatedAt = now
+	err := r.sqlstore.db.QueryRow(stmt,
+		n.AuthorID, n.Body,	n.IsPublic, n.CreatedAt, n.UpdatedAt, 
+	).Scan(&n.ID)
+	return n, err
 }
 
 func (r *NoteRepo) Patch(n *model.Note) error {
@@ -124,17 +124,17 @@ func (r *NoteRepo) Delete(id int) error {
 
 
 
-func (r *NoteRepo) SetNotes() error {
-	for i:=0; i<20; i++ {
-		note := &model.Note{
-			AuthorID:  rand.Intn(10),
-			Body:      strings.Repeat("a", i),
-			IsPublic:  []bool{true, false}[rand.Intn(2)],
-		}
-		err := r.Set(note)
-		if err != nil {
-			return err
-		}	
-	}
-	return nil
-}
+// func (r *NoteRepo) SetNotes() error {
+// 	for i:=0; i<20; i++ {
+// 		note := &model.Note{
+// 			AuthorID:  rand.Intn(10),
+// 			Body:      strings.Repeat("a", i),
+// 			IsPublic:  []bool{true, false}[rand.Intn(2)],
+// 		}
+// 		err := r.Set(note)
+// 		if err != nil {
+// 			return err
+// 		}	
+// 	}
+// 	return nil
+// }
