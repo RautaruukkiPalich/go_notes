@@ -18,5 +18,5 @@ migratetables:
 	migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/go_notes?sslmode=disable" $(mode)
 
 test:
-#migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/go_auth_users_test?sslmode=disable" up
+	migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/go_notes_test?sslmode=disable" up
 	go test -v -cover -race -timeout 30s ./...
